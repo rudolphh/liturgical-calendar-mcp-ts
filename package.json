@@ -1,0 +1,31 @@
+{
+  "name": "liturgical-calendar-mcp",
+  "version": "1.0.0",
+  "description": "MCP server providing access to Roman Catholic Liturgical Calendar data",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "liturgical-calendar-mcp": "build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build",
+    "start": "node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "liturgical",
+    "calendar",
+    "catholic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

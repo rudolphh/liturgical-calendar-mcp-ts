@@ -1,0 +1,82 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+DOCKER-SETUP.md
+*.md
+
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build artifacts (include only what's needed)
+# Uncomment the line below if you want to exclude build directory
+# build
+
+# Test files
+coverage
+.nyc_output
+test-results
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.bak
+
+# Logs
+logs
+*.log
+
+# Cache directories
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# MCP specific temp files
+.mcp
+mcp-debug.log
+*.mcp-session
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Setup and utility scripts
+setup-*.sh
+add-to-catalog.yaml
+
+# Package manager files (usually not needed in container)
+.npm
+.yarn-integrity
+
+# Runtime artifacts
+pids
+*.pid
+*.seed
+*.pid.lock

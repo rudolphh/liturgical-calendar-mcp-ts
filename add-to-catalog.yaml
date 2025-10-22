@@ -1,0 +1,32 @@
+# Add this entry to ~/.docker/mcp/catalogs/docker-mcp.yaml
+# Under the "registry:" section, paste this at the end (before any other closing braces)
+
+  liturgical-calendar:
+    description: "Access Roman Catholic Liturgical Calendar data for any year, nation, or diocese from 1970-9999"
+    title: "Liturgical Calendar"
+    type: server
+    dateAdded: "2025-10-22T00:00:00Z"
+    image: liturgical-calendar-mcp-ts:latest
+    ref: ""
+    readme: ""
+    toolsUrl: ""
+    source: ""
+    upstream: ""
+    icon: ""
+    tools:
+      - name: get_general_calendar
+      - name: get_national_calendar
+      - name: get_diocesan_calendar
+      - name: list_available_calendars
+      - name: get_liturgical_events
+    prompts: 0
+    resources: {}
+    metadata:
+      category: integration
+      tags:
+        - catholic
+        - liturgy
+        - calendar
+        - religious
+      license: MIT
+      owner: local
