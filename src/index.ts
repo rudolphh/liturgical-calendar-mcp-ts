@@ -11,8 +11,10 @@ const GRADE_MAP: Record<number, string> = {
 };
 
 // Utility Functions
+const formatDate = (timestamp: any) => timestamp ? new Date(timestamp * 1000).toISOString().split('T')[0] : timestamp;
+
 const formatEvent = (e: any) => 
-  `📅 ${e.name || "Unknown"}\n   Date: ${e.date}\n   Grade: ${GRADE_MAP[e.grade] || "Unknown"}\n   Color: ${e.color?.join(", ") || ""}`;
+  `📅 ${e.name || "Unknown"}\n   Date: ${formatDate(e.date)}\n   Grade: ${GRADE_MAP[e.grade] || "Unknown"}\n   Color: ${e.color?.join(", ") || ""}`;
 
 const formatCalendarSummary = (data: any) => {
   if (!data?.litcal) return "No calendar data available";
