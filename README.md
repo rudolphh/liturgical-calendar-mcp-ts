@@ -2,9 +2,11 @@
 
 A **Model Context Protocol (MCP)** server written in TypeScript that provides access to the [Roman Catholic Liturgical Calendar API](https://github.com/Liturgical-Calendar/LiturgicalCalendarAPI).
 
+> **Note:** Looking for the Python version? See [liturgical-calendar-mcp (Python)](https://github.com/CatholicOS/liturgical-calendar-mcp)
+
 ## Why TypeScript?
 
-This is a TypeScript rewrite of the Python version with these advantages:
+This is a TypeScript rewrite of the [Python version](https://github.com/CatholicOS/liturgical-calendar-mcp) with these advantages:
 
 - **Native MCP SDK**: First-class TypeScript support from the official MCP SDK
 - **Smaller container**: Node.js Alpine image is ~50MB vs Python ~100MB+
