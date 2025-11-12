@@ -22,6 +22,14 @@ This is a TypeScript rewrite of the [Python version](https://github.com/Catholic
 - **`list_available_calendars`** - Discover all available calendars
 - **`get_liturgical_events`** - All possible liturgical events
 
+## Architecture
+
+This server follows a clean modular architecture with separation of concerns:
+
+![Architecture Diagram](mermaid-chart.png)
+
+For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Prerequisites
 
 - **Node.js 18+** (20+ recommended)
