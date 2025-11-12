@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "liturgical-calendar-ts": {
+      "type": "stdio", 
+      "command": "node",
+      "args": ["${workspaceFolder}/build/index.js"]
+    }
+  }
+}
