@@ -96,7 +96,7 @@ Under the 'registry:' section, add:
     readme: ""
     toolsUrl: ""
     source: ""
-    upstream: ""
+    upstream: ""s
     icon: ""
     tools:
       - name: get_general_calendar
