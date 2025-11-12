@@ -1,5 +1,7 @@
 # Liturgical Calendar MCP Server (TypeScript)
 
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-blue)](https://modelcontextprotocol.io/introduction)
+
 A **Model Context Protocol (MCP)** server written in TypeScript that provides access to the [Roman Catholic Liturgical Calendar API](https://github.com/Liturgical-Calendar/LiturgicalCalendarAPI).
 
 > **Note:** Looking for the Python version? See [liturgical-calendar-mcp (Python)](https://github.com/CatholicOS/liturgical-calendar-mcp)
