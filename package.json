@@ -1,28 +1,55 @@
 {
-  "name": "liturgical-calendar-mcp",
+  "name": "@rudyah/liturgical-calendar-mcp",
   "version": "1.0.0",
-  "description": "MCP server providing access to Roman Catholic Liturgical Calendar data",
+  "description": "Model Context Protocol server providing access to Roman Catholic Liturgical Calendar data",
   "type": "module",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "bin": {
     "liturgical-calendar-mcp": "build/index.js"
   },
+  "files": [
+    "build/**/*.js",
+    "build/**/*.d.ts",
+    "build/**/*.d.ts.map",
+    "!build/**/*.test.*",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
     "prepare": "npm run build",
     "start": "node build/index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm test && npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudolphh/liturgical-calendar-mcp-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rudolphh/liturgical-calendar-mcp-ts/issues"
+  },
+  "homepage": "https://github.com/rudolphh/liturgical-calendar-mcp-ts#readme",
   "keywords": [
     "mcp",
+    "model-context-protocol",
     "liturgical",
     "calendar",
-    "catholic"
+    "catholic",
+    "roman-catholic",
+    "liturgy",
+    "feast-days",
+    "saints",
+    "api-client"
   ],
-  "author": "",
+  "author": "Rudolph Hernandez (https://github.com/rudolphh)",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },

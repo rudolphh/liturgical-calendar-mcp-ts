@@ -1,0 +1,32 @@
+# Source files (only ship compiled JS)
+src/
+tsconfig.json
+vitest.config.ts
+
+# Tests
+*.test.ts
+*.test.js
+TESTING.md
+
+# Development files
+.vscode/
+.git/
+.gitignore
+node_modules/
+
+# Documentation that's not needed in package
+ARCHITECTURE.md
+VSCODE-EXTENSION.md
+vscode-extension/
+
+# Docker files
+Dockerfile.ts
+DOCKER-SETUP.md
+setup-docker-mcp.sh
+setup-claude-desktop.sh
+add-to-catalog.yaml
+
+# Misc
+.DS_Store
+*.log
+mermaid-chart.png
