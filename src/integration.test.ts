@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-
-const API_BASE_URL = "https://litcal.johnromanodorazio.com/api/dev";
+import { API_BASE_URL } from './constants.js';
 
 /**
  * Integration tests for the Liturgical Calendar MCP Server

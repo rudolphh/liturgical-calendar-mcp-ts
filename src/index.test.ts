@@ -1,26 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { formatDate } from './rules/dates.js';
+import { GRADE_MAP } from './constants.js';
 
 const API_BASE_URL = "https://litcal.johnromanodorazio.com/api/dev";
-
-// Import the functions we need to test
-// These are copied from index.ts for testing purposes
-const GRADE_MAP: Record<number, string> = {
-  0: "Weekday", 1: "Commemoration", 2: "Optional Memorial", 3: "Memorial",
-  4: "Feast", 5: "Feast of the Lord", 6: "Solemnity", 7: "Higher Solemnity",
-};
-
-const formatDate = (dateValue: any) => {
-  if (!dateValue) return null;
-  try {
-    const date = typeof dateValue === 'number' 
-      ? new Date(dateValue * 1000) 
-      : new Date(dateValue);
-    if (isNaN(date.getTime())) return null;
-    return date.toISOString().split('T')[0];
-  } catch {
-    return null;
-  }
-};
 
 describe('API Response Validation Tests', () => {
   let usCalendarData: any;

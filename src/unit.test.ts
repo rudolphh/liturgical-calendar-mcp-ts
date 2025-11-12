@@ -1,54 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import { formatDate, validateYear } from './rules/dates.js';
+import { parseMonthFilter, parseGradeFilter } from './rules/filters.js';
+import { GRADE_MAP } from './constants.js';
 
 /**
- * Unit tests for utility functions in index.ts
- * 
- * These tests validate the individual helper functions used throughout the MCP server:
- * - Date formatting and parsing
- * - Filter parsing (month, grade)
- * - Year validation
- * - Response formatting
- * - Error handling
+ * Unit tests for utility functions
  */
-
-// Copy utility functions from index.ts for testing
-const GRADE_MAP: Record<number, string> = {
-  0: "Weekday", 1: "Commemoration", 2: "Optional Memorial", 3: "Memorial",
-  4: "Feast", 5: "Feast of the Lord", 6: "Solemnity", 7: "Higher Solemnity",
-};
-
-const formatDate = (dateValue: any) => {
-  if (!dateValue) return null;
-  try {
-    const date = typeof dateValue === 'number' 
-      ? new Date(dateValue * 1000) 
-      : new Date(dateValue);
-    if (isNaN(date.getTime())) return null;
-    return date.toISOString().split('T')[0];
-  } catch {
-    return null;
-  }
-};
-
-const parseMonthFilter = (monthFilter?: string): number | null | undefined => {
-  if (!monthFilter) return undefined;
-  const month = parseInt(monthFilter, 10);
-  if (isNaN(month) || month < 1 || month > 12) return undefined;
-  return month;
-};
-
-const parseGradeFilter = (gradeFilter?: string | number): number[] | null | undefined => {
-  if (!gradeFilter) return undefined;
-  const filterStr = typeof gradeFilter === 'number' ? String(gradeFilter) : gradeFilter;
-  const grades = filterStr.split(',').map(g => parseInt(g.trim(), 10)).filter(g => !isNaN(g) && g >= 0 && g <= 7);
-  return grades.length > 0 ? grades : undefined;
-};
-
-const validateYear = (year?: string) => {
-  const y = parseInt(year?.trim() || String(new Date().getFullYear()), 10);
-  if (isNaN(y) || y < 1970 || y > 9999) throw new Error("Year must be between 1970 and 9999");
-  return y;
-};
 
 describe('formatDate() utility function', () => {
   describe('Valid inputs', () => {
