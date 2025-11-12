@@ -4,128 +4,19 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema, Tool } from "@modelcontextprotocol/sdk/types.js";
 
-const API_BASE_URL = "https://litcal.johnromanodorazio.com/api/dev";
-const GRADE_MAP: Record<number, string> = {
-  0: "Weekday", 1: "Commemoration", 2: "Optional Memorial", 3: "Memorial",
-  4: "Feast", 5: "Feast of the Lord", 6: "Solemnity", 7: "Higher Solemnity",
-};
-
-// Utility Functions
-const formatDate = (dateValue: any) => {
-  if (!dateValue) return null;
-  try {
-    // Handle both Unix timestamp and ISO string formats
-    const date = typeof dateValue === 'number' 
-      ? new Date(dateValue * 1000) 
-      : new Date(dateValue);
-    if (isNaN(date.getTime())) return null;
-    return date.toISOString().split('T')[0];
-  } catch {
-    return null;
-  }
-};
-
-const parseMonthFilter = (monthFilter?: string): number | null | undefined => {
-  if (!monthFilter) return undefined;
-  const month = parseInt(monthFilter, 10);
-  if (isNaN(month) || month < 1 || month > 12) return undefined;
-  return month;
-};
-
-const parseGradeFilter = (gradeFilter?: string | number): number[] | null | undefined => {
-  if (!gradeFilter) return undefined;
-  const filterStr = typeof gradeFilter === 'number' ? String(gradeFilter) : gradeFilter;
-  const grades = filterStr.split(',').map(g => parseInt(g.trim(), 10)).filter(g => !isNaN(g) && g >= 0 && g <= 7);
-  return grades.length > 0 ? grades : undefined;
-};
-
-const formatCalendarResponse = (data: any, monthFilter?: number | null, gradeFilter?: number[] | null) => {
-  if (!data?.litcal) return JSON.stringify({ error: "No calendar data available" });
-  
-  try {
-    // Handle both array and object formats from API
-    const litcalData = Array.isArray(data.litcal) ? data.litcal : Object.values(data.litcal);
-    
-    let events = litcalData.map((e: any) => {
-      try {
-        return {
-          name: e.name || "Unknown",
-          date: formatDate(e.date),
-          grade: e.grade,
-          grade_name: GRADE_MAP[e.grade] || "Unknown",
-          color: e.color || [],
-          common: e.common || [],
-          liturgical_year: e.liturgical_year || null,
-        };
-      } catch (err) {
-        console.error(`Error formatting event ${e.event_key}:`, err);
-        throw err;
-      }
-    });
-  
-  // Apply month filter
-  if (monthFilter !== null && monthFilter !== undefined) {
-    events = events.filter((e: any) => {
-      if (!e.date) return false;
-      const eventMonth = new Date(e.date).getMonth() + 1;
-      return eventMonth === monthFilter;
-    });
-  }
-  
-  // Apply grade filter
-  if (gradeFilter && gradeFilter.length > 0) {
-    events = events.filter((e: any) => gradeFilter.includes(e.grade));
-  }
-  
-  // Sort by date
-  events.sort((a: any, b: any) => {
-    if (!a.date && !b.date) return 0;
-    if (!a.date) return 1;
-    if (!b.date) return -1;
-    return a.date.localeCompare(b.date);
-  });
-  
-  const response = {
-    metadata: {
-      locale: data.settings?.locale || null,
-      national_calendar: data.settings?.national_calendar || null,
-      diocesan_calendar: data.settings?.diocesan_calendar || null,
-      year: data.settings?.year || null,
-      total_events: events.length,
-      filters_applied: {
-        month: monthFilter || null,
-        grades: gradeFilter || null,
-      }
-    },
-    events
-  };
-  
-  return JSON.stringify(response, null, 2);
-  } catch (error) {
-    return JSON.stringify({ error: `Error formatting calendar: ${error instanceof Error ? error.message : String(error)}` });
-  }
-};
-
-const fetchAPI = async (url: string, locale = "en") => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
-  try {
-    const res = await fetch(url, {
-      headers: { Accept: "application/json", "Accept-Language": locale },
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error(`API Error: ${res.status} - ${await res.text()}`);
-    return await res.json();
-  } finally {
-    clearTimeout(timeout);
-  }
-};
-
-const validateYear = (year?: string) => {
-  const y = parseInt(year?.trim() || String(new Date().getFullYear()), 10);
-  if (isNaN(y) || y < 1970 || y > 9999) throw new Error("Year must be between 1970 and 9999");
-  return y;
-};
+// Import modules (MCP Pattern: Model Control Plane)
+import { GRADE_MAP } from './constants.js';
+import { validateYear } from './rules/dates.js';
+import { parseMonthFilter, parseGradeFilter } from './rules/filters.js';
+import { formatCalendarResponse } from './formatters/calendar.js';
+import {
+  fetchGeneralCalendar,
+  fetchNationalCalendar,
+  fetchDiocesanCalendar,
+  fetchAvailableCalendars,
+  fetchLiturgicalEvents,
+} from './api/client.js';
+import { cache } from './cache/memory.js';
 
 // Tool Handlers
 const handleError = (e: any) => JSON.stringify({ error: e instanceof Error ? e.message : String(e) });
@@ -133,7 +24,8 @@ const handleError = (e: any) => JSON.stringify({ error: e instanceof Error ? e.m
 const getGeneralCalendar = async (year?: string, locale = "en", month?: string | number, grade?: string | number) => {
   try {
     const y = validateYear(year);
-    const data = await fetchAPI(`${API_BASE_URL}/calendar/${y}`, locale);
+    const cacheKey = cache.calendarKey('general', y, locale);
+    const data = await cache.getOrFetch(cacheKey, () => fetchGeneralCalendar(y, locale));
     const monthFilter = parseMonthFilter(month ? String(month) : undefined);
     const gradeFilter = parseGradeFilter(grade ? String(grade) : undefined);
     return formatCalendarResponse(data, monthFilter, gradeFilter);
@@ -147,7 +39,8 @@ const getNationalCalendar = async (nation?: string, year?: string, locale = "en"
   try {
     const y = validateYear(year);
     const n = nation.trim().toUpperCase();
-    const data = await fetchAPI(`${API_BASE_URL}/calendar/nation/${n}/${y}`, locale);
+    const cacheKey = cache.calendarKey('national', y, locale, n);
+    const data = await cache.getOrFetch(cacheKey, () => fetchNationalCalendar(n, y, locale));
     const monthFilter = parseMonthFilter(month ? String(month) : undefined);
     const gradeFilter = parseGradeFilter(grade ? String(grade) : undefined);
     return formatCalendarResponse(data, monthFilter, gradeFilter);
@@ -161,7 +54,8 @@ const getDiocesanCalendar = async (diocese?: string, year?: string, locale = "en
   try {
     const y = validateYear(year);
     const d = diocese.trim();
-    const data = await fetchAPI(`${API_BASE_URL}/calendar/diocese/${d}/${y}`, locale);
+    const cacheKey = cache.calendarKey('diocesan', y, locale, undefined, d);
+    const data = await cache.getOrFetch(cacheKey, () => fetchDiocesanCalendar(d, y, locale));
     const monthFilter = parseMonthFilter(month ? String(month) : undefined);
     const gradeFilter = parseGradeFilter(grade ? String(grade) : undefined);
     return formatCalendarResponse(data, monthFilter, gradeFilter);
@@ -172,7 +66,7 @@ const getDiocesanCalendar = async (diocese?: string, year?: string, locale = "en
 
 const listAvailableCalendars = async () => {
   try {
-    const data = await fetchAPI(`${API_BASE_URL}/calendars`);
+    const data = await cache.getOrFetch('calendars:list', () => fetchAvailableCalendars());
     if (!data?.litcal_metadata) return JSON.stringify({ error: "No calendar metadata available" });
     
     const { national_calendars = [], diocesan_calendars = [] } = data.litcal_metadata;
@@ -199,11 +93,8 @@ const listAvailableCalendars = async () => {
 
 const getLiturgicalEvents = async (calendarType = "general", nation?: string, diocese?: string, gradeFilter?: string) => {
   try {
-    let url = `${API_BASE_URL}/events`;
-    if (calendarType === "national" && nation) url += `/nation/${nation.trim().toUpperCase()}`;
-    else if (calendarType === "diocesan" && diocese) url += `/diocese/${diocese.trim()}`;
-    
-    const data = await fetchAPI(url);
+    const cacheKey = `events:${calendarType}:${nation || 'none'}:${diocese || 'none'}`;
+    const data = await cache.getOrFetch(cacheKey, () => fetchLiturgicalEvents(calendarType, nation, diocese));
     if (!data?.litcal_events) return JSON.stringify({ error: "No events data available" });
     
     const grades = parseGradeFilter(gradeFilter);
